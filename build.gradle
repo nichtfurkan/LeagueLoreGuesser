@@ -1,0 +1,20 @@
+plugins {
+    id 'java'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+}
+
+dependencies {
+    implementation 'commons-io:commons-io:2.11.0'
+    implementation "com.merakianalytics.orianna:orianna:4.0.0-SNAPSHOT"
+}
+
+test {
+    useJUnitPlatform()
+}
