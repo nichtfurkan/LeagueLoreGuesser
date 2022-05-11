@@ -11,6 +11,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class GameThread {
@@ -19,35 +21,36 @@ public class GameThread {
   private final String champion;
 
   public GameThread() {
-    Champion champion = getRandomChamp();
+    String champion = getRandomChamp();
+    System.out.println(champion);
     if (!new File(
             "C:\\Users\\"
                 + System.getProperty("user.name")
                 + "\\Documents\\LoreGuesser\\ChampionImage"
-                + champion.getName()
+                + champion
                 + ".png")
         .exists()) {
-      try (InputStream in = new URL(champion.getImage().getURL()).openStream()) {
+      try (InputStream in = new URL(Orianna.getChampions().get(Orianna.getChampions().indexOf(Champion.named(champion).get())).getImage().getURL()).openStream()) {
         Files.copy(
             in,
             Paths.get(
                 "C:\\Users\\"
                     + System.getProperty("user.name")
                     + "\\Documents\\LoreGuesser\\ChampionImage"
-                    + champion.getName()
+                    + champion
                     + ".png"));
       } catch (IOException e) {
         e.printStackTrace();
       }
     }
     String[] name;
-    if (champion.getName().split(" ").length > 0) {
-      name = champion.getName().split(" ");
+    if (champion.split(" ").length > 0) {
+      name = champion.split(" ");
     } else {
-      name = new String[] {champion.getName()};
+      name = new String[] {champion};
     }
-    String lore1 = champion.getLore();
-    String rawLore = champion.getLore();
+    String lore1 = LoreGuesser.getInstance().championLoreList.get(champion);
+    String rawLore = LoreGuesser.getInstance().championLoreList.get(champion);
     if (MainInterface.randomizeMode && rawLore.contains(".") && rawLore.split("\\.").length > 0) {
       lore1 = lore1.split("\\.")[new Random().nextInt(lore1.split("\\.").length)];
     }
@@ -55,7 +58,7 @@ public class GameThread {
       lore1 = lore1.split("\\.")[0];
     }
 
-    this.champion = champion.getName();
+    this.champion = champion;
 
     StringBuilder builder = new StringBuilder();
     for (String s : lore1.split(" ")) {
@@ -63,11 +66,19 @@ public class GameThread {
       check = check.replaceAll("\\.", "");
       check = check.replaceAll(",", "");
       check = check.replaceAll(":", "");
-      for (String s1 : name) {
-        if (check.equals(s1.toLowerCase())) {
+      if (champion.contains(" ")) {
+        for (String s1 : name) {
+          if (check.contains(s1.toLowerCase())) {
+            s = "***";
+            break;
+          }
+        }
+      } else {
+        if (check.startsWith(champion.toLowerCase()) || check.contains(champion.toLowerCase())) {
           s = "***";
         }
       }
+
       if (check.startsWith("noxus")
           || check.equals("noxian")
           || check.startsWith("zaun")
@@ -101,9 +112,10 @@ public class GameThread {
     lore = builder.toString();
   }
 
-  private Champion getRandomChamp() {
-    Champion champion =
-        Orianna.getChampions().get(new Random().nextInt(Orianna.getChampions().size()));
+  private String getRandomChamp() {
+    List<String> keysAsArray = new ArrayList<>(LoreGuesser.getInstance().championLoreList.keySet());
+    String champion =
+            keysAsArray.get(new Random().nextInt(LoreGuesser.getInstance().championLoreList.size()));
     if (LoreGuesser.getInstance().alreadyShown.contains(champion)) {
       champion = getRandomChamp();
     }

@@ -1,5 +1,6 @@
 package de.furkan.leagueloreguesser.interfaces;
 
+import com.merakianalytics.orianna.Orianna;
 import de.furkan.componentutil.ButtonClick;
 import de.furkan.componentutil.components.ButtonComponent;
 import de.furkan.componentutil.components.ImageComponent;
@@ -11,9 +12,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class MainInterface extends JFrame {
 
@@ -40,10 +46,12 @@ public class MainInterface extends JFrame {
             "Lore Guesser", 0, 10, Font.SANS_SERIF, 40, Font.BOLD, Color.WHITE, getSize(), this);
     title.create(true, false);
     // Subtitle
+      TextComponent subTitle;
+      if(LoreGuesser.getInstance().downloadNew) {
 
-    TextComponent subTitle =
+    subTitle =
         new TextComponent(
-            "Created by Furko on 09.05.2022 with <3",
+            "First start (Downloading for Aatrox)",
             0,
             55,
             Font.SANS_SERIF,
@@ -53,35 +61,90 @@ public class MainInterface extends JFrame {
             getSize(),
             this);
     subTitle.create(true, false);
+          add(background);
+          repaint();
 
-    TextComponent highScore =
-        new TextComponent(
-            "Current Highscore: " + LoreGuesser.getInstance().highScore,
-            10,
-            45,
-            Font.SANS_SERIF,
-            15,
-            Font.ITALIC,
-            Color.WHITE,
-            getSize(),
-            this);
-    highScore.create(false, false);
+          setLocationRelativeTo(null);
+          setVisible(true);
+          Orianna.getChampions().forEach(champion -> {
+              subTitle.getComponent().setText("First start (Downloading for "+champion.getName()+")");
+              repaint();
+              LoreGuesser.getInstance().championLoreList.put(champion.getName(),champion.getLore());
+              if (!new File(
+                      "C:\\Users\\"
+                              + System.getProperty("user.name")
+                              + "\\Documents\\LoreGuesser\\ChampionImage"
+                              + champion.getName()
+                              + ".png")
+                      .exists()) {
+                  try (InputStream in = new URL(champion.getImage().getURL()).openStream()) {
+                      Files.copy(
+                              in,
+                              Paths.get(
+                                      "C:\\Users\\"
+                                              + System.getProperty("user.name")
+                                              + "\\Documents\\LoreGuesser\\ChampionImage"
+                                              + champion.getName()
+                                              + ".png"));
+                  } catch (IOException e) {
+                      e.printStackTrace();
+                  }
+              }
+          });
+    LoreGuesser.getInstance().downloadNew = false;
+   dispose();
+  new MainInterface();
+    } else {
+      Orianna.getChampions()
+          .forEach(
+              champion -> {
+                LoreGuesser.getInstance()
+                    .championLoreList
+                    .put(champion.getName(), champion.getLore());
+              });
+          subTitle =
+                  new TextComponent(
+                          "Created by Furko on 09.05.2022 with <3",
+                          0,
+                          55,
+                          Font.SANS_SERIF,
+                          15,
+                          Font.ITALIC,
+                          Color.WHITE,
+                          getSize(),
+                          this);
+          subTitle.create(true, false);
+      TextComponent highScore =
+          new TextComponent(
+              "Current Highscore: " + LoreGuesser.getInstance().highScore,
+              10,
+              45,
+              Font.SANS_SERIF,
+              15,
+              Font.ITALIC,
+              Color.WHITE,
+              getSize(),
+              this);
+      highScore.create(false, false);
 
-    // Play Button
-    initPlayButton();
 
-    // Hardmode
-    initLimitButton();
-    // Randomize
-    initRandomizeButton();
-    // Donation button
-    initDonationButton();
+      // Play Button
+      initPlayButton();
 
-    // Background
-    add(background);
+      // Hardmode
+      initLimitButton();
+      // Randomize
+      initRandomizeButton();
+      // Donation button
+      initDonationButton();
 
-    setLocationRelativeTo(null);
-    setVisible(true);
+      // Background
+      add(background);
+      repaint();
+
+      setLocationRelativeTo(null);
+      setVisible(true);
+    }
   }
 
   private void initDonationButton() {

@@ -12,13 +12,16 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class LoreGuesser {
 
   private static final LoreGuesser instance = new LoreGuesser();
-  public ArrayList<Champion> alreadyShown = new ArrayList<>();
+  public ArrayList<String> alreadyShown = new ArrayList<>();
   public int highScore = 0;
   public int currentScore = 0;
+  public boolean downloadNew = false;
+  public HashMap<String,String> championLoreList = new HashMap<>();
   public File saveFile =
       new File(
           "C:\\Users\\"
@@ -31,7 +34,6 @@ public class LoreGuesser {
 
   public static void main(String[] args) {
     try {
-
       if (!getInstance().saveFile.exists()) {
         new File("C:\\Users\\" + System.getProperty("user.name") + "\\Documents\\LoreGuesser")
             .mkdir();
@@ -40,6 +42,7 @@ public class LoreGuesser {
         fileWriter.write("0");
         fileWriter.flush();
         fileWriter.close();
+        getInstance().downloadNew = true;
       }
       String line = new BufferedReader(new FileReader(getInstance().saveFile)).readLine();
       if (line != null) {

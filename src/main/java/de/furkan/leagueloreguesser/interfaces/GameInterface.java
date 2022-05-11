@@ -47,17 +47,10 @@ public class GameInterface extends JFrame {
             this);
     subTitle.create(true, false);
 
-    new Timer()
-        .schedule(
-            new TimerTask() {
-              @Override
-              public void run() {
                 GameThread gameThread = new GameThread();
                 subTitle.setVisible(false);
                 createGameInterface(gameThread.getLore(), gameThread.getChampion());
-              }
-            },
-            1000 * 3);
+
 
     // Background
     add(background);
